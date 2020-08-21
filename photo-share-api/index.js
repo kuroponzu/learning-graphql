@@ -1,10 +1,36 @@
-const { ApolloServer } = require(`apollo-server-express`)
-const express = require(`express`)
+const { ApolloServer } = require('apollo-server-express')
+const express = require('express')
 const { GraphQLScalarType } = require("graphql")
-const expressPlayground = require(`graphql-playground-middleware-express`).default
-const { readFileSync } = require(`fs`)
+const expressPlayground = require('graphql-playground-middleware-express').default
+const { readFileSync } = require('fs')
+const { MongoClient } = require('mongodb')
 
-const typeDefs = readFileSync(`./typeDefs.graphql`,`UTF-8`)
+require('dotenv').config()
+
+const typeDefs = readFileSync('./typeDefs.graphql','UTF-8')
+
+
+async function start(){
+  const app = express()
+  const MONGO_DB = process.env.DB_HOST
+  const client = await MongoClient.connect(
+    MONGO_DB,
+    { userNewUrlParser: true }
+  )
+  const db = client.db()
+  const context = { db }
+  const server = new ApolloServer({ typeDefs, resolvers, context })
+
+  server.applyMiddleware({ app })
+  app.get('/', (req, res) => res.end('welcome to the photoshare api'))
+  app.get('/playground', expressPlayground({ endpoint: '/graphql'}))
+
+  app.listen({ port: 4000 }, () =>
+  console.log('graphQL server running')
+  )
+}
+
+start()
 
 var _id = 0
 
@@ -26,7 +52,7 @@ const resolvers = {
     }
   },
   Photo:{
-    url: parent => `http://yoursite.som/img/${ parent.id }.jpg`,
+    url: parent => 'http://yoursite.som/img/${ parent.id }.jpg',
     postedBy: parent => {
       return users.find(u => u.githubLogin === parent.githubUser)
     },
@@ -45,26 +71,13 @@ const resolvers = {
       .map(photoID => photos.find(p => p.id === photoID))
   },
   DateTime: new GraphQLScalarType({
-    name: `DateTime`,
-    description: `A valid date time value`,
+    name: 'DateTime',
+    description: 'A valid date time value',
     parseValue: value => new Date(value),
     serialize: value => new Date(value).toISOString(),
     parseLiteral: ast => ast.value
   })
 }
-
-var app = express()
-
-const server = new ApolloServer({ typeDefs, resolvers })
-
-server.applyMiddleware({ app })
-
-app.get(`/`, (req, res) => res.end(`welcome to the photoshare api`))
-app.get(`/playground`, expressPlayground({ endpoint: `/graphql`}))
-
-app.listen({ port: 4000}, () =>
-  console.log(`GraphQL Server running @ http://localhost:4000${ server.graphqlPath }`)
-)
 
 var users = [
   { "githubLogin": "mHattrup", "name": "Mike Hattrup"},
