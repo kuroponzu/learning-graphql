@@ -92,3 +92,7 @@ sw.*
 .vscode
 
 node_modules/
+
+photo-share-api/node_modules
+
+photo-share-api/.vscode
