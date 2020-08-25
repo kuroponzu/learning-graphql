@@ -2,12 +2,19 @@ const { authorizeWithGithub } = require('../lib')
 
 module.exports = {
   // argsにはnameとdescriptionが含まれている。
-  async postPhoto(parent, args){
+  async postPhoto(parent, args, { db, currentUser }){
+
+    if(!currentUser){
+      throw new Error('only an authorized user can post a photo')
+    }
+
     var newPhoto = {
       ...args.input,
+      userID: currentUser.githubLogin,
       created: new Date()
     }
-    photos.push(newPhoto)
+    await db.collection('photos').insertOne(newPhoto,function(err,docsInserted){
+    })
     return newPhoto
   },
 

@@ -4,8 +4,8 @@ type User{
   githubLogin: ID!
   name: String
   avatar: String
-  postedPhotos: [Photo!]!
-  inPhotos: [Photo!]!
+  postedPhotos: [Photo!]
+  inPhotos: [Photo!]
 }
 
 enum PhotoCategory{
