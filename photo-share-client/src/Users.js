@@ -14,7 +14,7 @@ const ADD_FAKE_USERS_MUTATION = gql`
 `
 
 const Users = () =>
-  <Query query={ ROOT_QUERY }>
+  <Query query={ ROOT_QUERY } fetchPolicy="cache-and-network">
     {({ data, loading, refetch }) => loading ?
       <p>loading users...</p> :
       <UserList
@@ -50,7 +50,6 @@ const UserListItem = ({ name, avatar }) =>
     <img src={avatar} width={48} height={48} alt="" />
     {name}
   </li>
-
 
 
 export default Users
