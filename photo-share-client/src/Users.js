@@ -17,7 +17,8 @@ const Users = () =>
   <Query query={ ROOT_QUERY }>
     {({ data, loading, refetch }) => loading ?
       <p>loading users...</p> :
-      <UserList count={data.totalUsers}
+      <UserList
+        count={data.totalUsers}
         users={data.allUsers}
         refetchUsers={refetch}
       />
